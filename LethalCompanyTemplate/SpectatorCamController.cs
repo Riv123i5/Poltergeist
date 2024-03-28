@@ -23,7 +23,6 @@ namespace Poltergeist
         private Light light = null;
 
         private float maxPower = 100;
-        private float powerRecover = 5;
         private float power = 0;
         public float Power => power;
 
@@ -36,7 +35,6 @@ namespace Poltergeist
         private float accelTime = -1;
         private float decelTime = -1;
         public static List<MaskedPlayerEnemy> masked = new List<MaskedPlayerEnemy>();
-        private int vertDirection = 0;
         private bool altitudeLock = false;
 
         /**
@@ -324,7 +322,7 @@ namespace Poltergeist
             }
 
             //Calculate the max power based on # of connected players dead
-            float connected = -1; //Negative 1 because we want max power at 1 living player
+            float connected = Poltergeist.config.aliveForMax * -1; //Negative because we want max power at aliveForMax living players
             float dead = 0;
             foreach(PlayerControllerB player in StartOfRound.Instance.allPlayerScripts) //First, count them
             {
@@ -338,12 +336,12 @@ namespace Poltergeist
             }
             dead = Mathf.Min(dead, connected); //Make sure we don't go above 100 power
             if (connected <= 0) //If few enough player connected, always max power
-                maxPower = 100f;
+                maxPower = Poltergeist.config.maxPower.Value;
             else
-                maxPower = (dead / connected) * 100f;
+                maxPower = (dead / connected) * Poltergeist.config.maxPower.Value;
 
             //If dead, player should always be gaining power
-            power = Mathf.Min(maxPower, power + (powerRecover * Time.deltaTime));
+            power = Mathf.Min(maxPower, power + (Poltergeist.config.recharge.Value * Time.deltaTime));
 
             //If the player is in the menu (or we're in vanilla mode), don't do update stuff
             if (clientPlayer.isTypingChat || clientPlayer.quickMenuManager.isMenuOpen || Patches.vanillaMode)
