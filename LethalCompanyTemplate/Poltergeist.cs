@@ -14,29 +14,22 @@ namespace Poltergeist
         public const string MOD_NAME = "Poltergeist";
         public const string MOD_VERSION = "0.3.1";
 
-        //Other things
+        //Static things
         private static Poltergeist instance = null;
+        public static PoltergeistConfig config = null;
 
         private void Awake()
         {
             instance = this;
-
-            //Handle the config
-            Patches.defaultMode = Config.Bind<bool>("General",
-                "DefaultToVanilla",
-                false,
-                "If true, the vanilla spectate system will be used by default on death.").Value;
-            SpectatorCamController.lightIntensity = Config.Bind<float>("General",
-                "GhostLightIntensity",
-                5,
-                "The intensity of the global light when dead.\n" +
-                "WARNING: This game has a lot of fog, so excessively high values can decrease visibility.").Value;
 
             //Make the patches
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
 
             //Make the input instance
             new PoltergeistCustomInputs();
+
+            //Make the config
+            config = new PoltergeistConfig(Config);
 
             // All done!
             Logger.LogInfo($"Plugin Poltergeist is loaded!");

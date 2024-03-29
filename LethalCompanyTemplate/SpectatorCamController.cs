@@ -335,11 +335,11 @@ namespace Poltergeist
                 else if (player.isPlayerControlled)
                     connected++;
             }
-            dead = Mathf.Min(dead, connected); //Make sure we don't go above 100 power
+            dead = Mathf.Min(dead, connected); //Make sure we don't go above max power
             if (connected <= 0) //If few enough player connected, always max power
-                maxPower = 100f;
+                maxPower = Poltergeist.config.MaxPower.Value;
             else
-                maxPower = (dead / connected) * 100f;
+                maxPower = (dead / connected) * Poltergeist.config.MaxPower.Value;
 
             //If dead, player should always be gaining power
             power = Mathf.Min(maxPower, power + (powerRecover * Time.deltaTime));
