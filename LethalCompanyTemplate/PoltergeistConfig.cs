@@ -21,13 +21,13 @@ namespace Poltergeist
             ConfigManager.Register(this);
 
             //Client things
-            Patches.defaultMode = cfg.Bind<bool>("General",
+            Patches.defaultMode = cfg.Bind("General",
                 "DefaultToVanilla",
                 false,
                 "If true, the vanilla spectate system will be used by default on death.").Value;
-            SpectatorCamController.lightIntensity = cfg.Bind<float>("General",
+            SpectatorCamController.lightIntensity = cfg.Bind("General",
                 "GhostLightIntensity",
-                5,
+                5f,
                 "The intensity of the global light when dead.\n" +
                 "WARNING: This game has a lot of fog, so excessively high values can decrease visibility.").Value;
 
