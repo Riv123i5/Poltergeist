@@ -4,9 +4,17 @@ using System.Reflection;
 
 namespace Poltergeist
 {
-    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInPlugin(MOD_GUID, MOD_NAME, MOD_VERSION)]
+    [BepInDependency("com.rune580.LethalCompanyInputUtils")]
+    [BepInDependency("io.github.CSync")]
     public class Poltergeist : BaseUnityPlugin
     {
+        //Plugin info
+        public const string MOD_GUID = "coderCleric.Poltergeist";
+        public const string MOD_NAME = "Poltergeist";
+        public const string MOD_VERSION = "0.3.1";
+
+        //Other things
         private static Poltergeist instance = null;
 
         private void Awake()
@@ -31,7 +39,7 @@ namespace Poltergeist
             new PoltergeistCustomInputs();
 
             // All done!
-            Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
+            Logger.LogInfo($"Plugin Poltergeist is loaded!");
         }
 
         /**
