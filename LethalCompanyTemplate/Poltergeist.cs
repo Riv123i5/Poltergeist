@@ -8,14 +8,21 @@ namespace Poltergeist
     public class Poltergeist : BaseUnityPlugin
     {
         private static Poltergeist instance = null;
-        public static PoltergeistConfig config { get; private set; }
 
         private void Awake()
         {
             instance = this;
 
-            //Initialize the config
-            config = new PoltergeistConfig(base.Config);
+            //Handle the config
+            Patches.defaultMode = Config.Bind<bool>("General",
+                "DefaultToVanilla",
+                false,
+                "If true, the vanilla spectate system will be used by default on death.").Value;
+            SpectatorCamController.lightIntensity = Config.Bind<float>("General",
+                "GhostLightIntensity",
+                5,
+                "The intensity of the global light when dead.\n" +
+                "WARNING: This game has a lot of fog, so excessively high values can decrease visibility.").Value;
 
             //Make the patches
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
