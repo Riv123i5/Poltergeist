@@ -85,6 +85,9 @@ namespace Poltergeist
 
                 //Enable ghost-only interactables
                 GhostInteractible.SetGhostActivation(true);
+
+                //Check to make sure we're synced
+                PoltergeistConfig.CheckSync();
             }
         }
 
@@ -319,7 +322,7 @@ namespace Poltergeist
             }
 
             //Calculate the max power based on # of connected players dead
-            float connected = PoltergeistConfig.Instance.AliveForMax.Value * -1; //Negative because we want max power at AliveForMax living players
+            float connected = PoltergeistConfig.AliveForMax * -1; //Negative because we want max power at AliveForMax living players
             float dead = 0;
             foreach(PlayerControllerB player in StartOfRound.Instance.allPlayerScripts) //First, count them
             {
@@ -333,12 +336,12 @@ namespace Poltergeist
             }
             dead = Mathf.Min(dead, connected); //Make sure we don't go above max power
             if (connected <= 0) //If few enough player connected, always max power
-                maxPower = PoltergeistConfig.Instance.MaxPower.Value;
+                maxPower = PoltergeistConfig.MaxPower;
             else
-                maxPower = (dead / connected) * PoltergeistConfig.Instance.MaxPower.Value;
+                maxPower = (dead / connected) * PoltergeistConfig.MaxPower;
 
             //If dead, player should always be gaining power
-            power = Mathf.Min(maxPower, power + (PoltergeistConfig.Instance.Recharge.Value * Time.deltaTime));
+            power = Mathf.Min(maxPower, power + (PoltergeistConfig.Recharge * Time.deltaTime));
 
             //If the player is in the menu (or we're in vanilla mode), don't do update stuff
             if (clientPlayer.isTypingChat || clientPlayer.quickMenuManager.isMenuOpen || Patches.vanillaMode)

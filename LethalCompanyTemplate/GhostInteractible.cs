@@ -67,13 +67,13 @@ namespace Poltergeist
             switch(costType)
             {
                 case InteractCostType.DOOR:
-                    return PoltergeistConfig.Instance.DoorCost.Value;
+                    return PoltergeistConfig.DoorCost;
                 case InteractCostType.BIGDOOR:
-                    return PoltergeistConfig.Instance.BigDoorCost.Value;
+                    return PoltergeistConfig.BigDoorCost;
                 case InteractCostType.ITEM:
-                    return PoltergeistConfig.Instance.ItemCost.Value;
+                    return PoltergeistConfig.ItemCost;
                 default:
-                    return PoltergeistConfig.Instance.MiscCost.Value;
+                    return PoltergeistConfig.MiscCost;
             }
         }
 
