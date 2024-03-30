@@ -13,9 +13,6 @@ namespace Poltergeist
 {
     public class SpectatorCamController : MonoBehaviour
     {
-        //Config things
-        public static float lightIntensity = 5;
-
         //Other fields
         public static SpectatorCamController instance = null;
 
@@ -23,7 +20,6 @@ namespace Poltergeist
         private Light light = null;
 
         private float maxPower = 100;
-        private float powerRecover = 5;
         private float power = 0;
         public float Power => power;
 
@@ -50,7 +46,7 @@ namespace Poltergeist
             lightObj.transform.eulerAngles = new Vector3 (90f, 0f, 0f);
             light.type = LightType.Directional;
             light.shadows = LightShadows.None;
-            light.intensity = lightIntensity;
+            light.intensity = PoltergeistConfig.Default.LightIntensity.Value;
 
             DisableCam();
         }
@@ -102,7 +98,7 @@ namespace Poltergeist
                 //Basics
                 enabled = false;
                 light.enabled = false;
-                Patches.vanillaMode = Patches.defaultMode;
+                Patches.vanillaMode = PoltergeistConfig.Default.DefaultToVanilla.Value;
                 altitudeLock = false;
 
                 //If these aren't null, we moved them and need to put them back
@@ -323,7 +319,7 @@ namespace Poltergeist
             }
 
             //Calculate the max power based on # of connected players dead
-            float connected = -1; //Negative 1 because we want max power at 1 living player
+            float connected = PoltergeistConfig.Instance.AliveForMax.Value * -1; //Negative because we want max power at AliveForMax living players
             float dead = 0;
             foreach(PlayerControllerB player in StartOfRound.Instance.allPlayerScripts) //First, count them
             {
@@ -337,12 +333,12 @@ namespace Poltergeist
             }
             dead = Mathf.Min(dead, connected); //Make sure we don't go above max power
             if (connected <= 0) //If few enough player connected, always max power
-                maxPower = Poltergeist.config.MaxPower.Value;
+                maxPower = PoltergeistConfig.Instance.MaxPower.Value;
             else
-                maxPower = (dead / connected) * Poltergeist.config.MaxPower.Value;
+                maxPower = (dead / connected) * PoltergeistConfig.Instance.MaxPower.Value;
 
             //If dead, player should always be gaining power
-            power = Mathf.Min(maxPower, power + (powerRecover * Time.deltaTime));
+            power = Mathf.Min(maxPower, power + (PoltergeistConfig.Instance.Recharge.Value * Time.deltaTime));
 
             //If the player is in the menu (or we're in vanilla mode), don't do update stuff
             if (clientPlayer.isTypingChat || clientPlayer.quickMenuManager.isMenuOpen || Patches.vanillaMode)

@@ -12,6 +12,7 @@ namespace Poltergeist
     public class GhostInteractible : MonoBehaviour
     {
         public enum GhostInteractType {UNKNOWN, GENERAL, NOISE_PROP, BOOMBOX, BIGDOOR}
+        public enum InteractCostType { DOOR, BIGDOOR, ITEM, MISC}
 
         //Needed to facilitate the different types of interaction
         private InteractTrigger trigger = null;
@@ -21,7 +22,7 @@ namespace Poltergeist
 
         //Fundamental info on the interaction
         private GhostInteractType type = GhostInteractType.UNKNOWN;
-        public float cost = 10f;
+        public InteractCostType costType = InteractCostType.MISC;
 
         //Useful for the global list of items
         private static List<GhostInteractible> managedInteractibles = new List<GhostInteractible>();
@@ -55,6 +56,24 @@ namespace Poltergeist
             {
                 type = GhostInteractType.BIGDOOR;
                 bigDoorObj = transform.parent.gameObject.GetComponent<TerminalAccessibleObject>();
+            }
+        }
+
+        /**
+         * Gets the cost of this interactible based on the cost type
+         */
+        public float GetCost()
+        {
+            switch(costType)
+            {
+                case InteractCostType.DOOR:
+                    return PoltergeistConfig.Instance.DoorCost.Value;
+                case InteractCostType.BIGDOOR:
+                    return PoltergeistConfig.Instance.BigDoorCost.Value;
+                case InteractCostType.ITEM:
+                    return PoltergeistConfig.Instance.ItemCost.Value;
+                default:
+                    return PoltergeistConfig.Instance.MiscCost.Value;
             }
         }
 
@@ -115,7 +134,7 @@ namespace Poltergeist
             float retCost = 0;
 
             //Don't let them interact without meeting the cost
-            if(SpectatorCamController.instance.Power < cost)
+            if(SpectatorCamController.instance.Power < GetCost())
                 return retCost;
 
             switch (type)
@@ -125,7 +144,7 @@ namespace Poltergeist
                     if (trigger.interactable)
                     {
                         trigger.Interact(playerTransform);
-                        retCost = cost;
+                        retCost = GetCost();
                     }
                     break;
 
@@ -133,7 +152,7 @@ namespace Poltergeist
                 case GhostInteractType.NOISE_PROP:
                 case GhostInteractType.BOOMBOX:
                     MakeNoise();
-                    retCost = cost;
+                    retCost = GetCost();
                     break;
 
                 //It's a big door
@@ -143,7 +162,7 @@ namespace Poltergeist
                     if(powered)
                     {
                         bigDoorObj.SetDoorToggleLocalClient();
-                        retCost = cost;
+                        retCost = GetCost();
                     }
                     break;
             }
@@ -175,8 +194,8 @@ namespace Poltergeist
         public string GetTipText()
         {
             //Display message for not having enough power
-            if(SpectatorCamController.instance.Power < cost)
-                return "Not Enough Power (" + cost.ToString("F0") + ")";
+            if(SpectatorCamController.instance.Power < GetCost())
+                return "Not Enough Power (" + GetCost().ToString("F0") + ")";
 
             //When you do have enough power
             string retStr = "Unknown Interaction";
@@ -214,7 +233,7 @@ namespace Poltergeist
                     break;
             }
 
-            return retStr + " (" + cost.ToString("F0") + ")";
+            return retStr + " (" + GetCost().ToString("F0") + ")";
         }
 
         /**

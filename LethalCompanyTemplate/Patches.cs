@@ -14,9 +14,6 @@ namespace Poltergeist
     [HarmonyPatch]
     public static class Patches
     {
-        //Config things
-        public static bool defaultMode = false;
-
         //Other fields
         public static bool vanillaMode = false;
         public static GrabbableObject ignoreObj = null;
@@ -108,7 +105,8 @@ namespace Poltergeist
         {
             //If it's a door, add the interactible
             if (__instance.gameObject.GetComponent<DoorLock>() != null) {
-                __instance.gameObject.AddComponent<GhostInteractible>();
+                GhostInteractible interactible = __instance.gameObject.AddComponent<GhostInteractible>();
+                interactible.costType = GhostInteractible.InteractCostType.DOOR;
                 return;
             }
 
@@ -116,7 +114,6 @@ namespace Poltergeist
             if (__instance.name.Equals("LightSwitch") || (__instance.transform.parent != null && __instance.transform.parent.name.Contains("storage")))
             {
                 GhostInteractible interactible = __instance.gameObject.AddComponent<GhostInteractible>();
-                interactible.cost = 5;
                 return;
             }
 
@@ -143,7 +140,7 @@ namespace Poltergeist
         public static void AddInteractorForHorns(NoisemakerProp __instance)
         {
             GhostInteractible interactible = __instance.gameObject.AddComponent<GhostInteractible>();
-            interactible.cost = 5;
+            interactible.costType = GhostInteractible.InteractCostType.ITEM;
         }
 
         /**
@@ -156,7 +153,7 @@ namespace Poltergeist
         public static void AddInteractorForBoombox(BoomboxItem __instance)
         {
             GhostInteractible interactible = __instance.gameObject.AddComponent<GhostInteractible>();
-            interactible.cost = 5;
+            interactible.costType = GhostInteractible.InteractCostType.ITEM;
         }
 
         /**
@@ -188,7 +185,7 @@ namespace Poltergeist
                 //Make the ghost interactor
                 GhostInteractible interactor = interactObj.AddComponent<GhostInteractible>();
                 interactor.SetGhostOnly(true);
-                interactor.cost = 50;
+                interactor.costType = GhostInteractible.InteractCostType.BIGDOOR;
             }
         }
 
