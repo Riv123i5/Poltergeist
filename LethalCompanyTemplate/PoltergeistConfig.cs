@@ -185,6 +185,13 @@ namespace Poltergeist
          */
         private static void InstanceAsInterface()
         {
+            //If something with the instance is wrong, force the defaults instead
+            if(Instance.MaxPowerConfig == null)
+            {
+                ForceDefaults();
+                return;
+            }
+
             MaxPower = Instance.MaxPowerConfig.Value;
             Recharge = Instance.RechargeConfig.Value;
             AliveForMax = Instance.AliveForMaxConfig.Value;
