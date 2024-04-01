@@ -6,7 +6,6 @@ namespace Poltergeist
 {
     [BepInPlugin(MOD_GUID, MOD_NAME, MOD_VERSION)]
     [BepInDependency("com.rune580.LethalCompanyInputUtils")]
-    [BepInDependency("io.github.CSync")]
     public class Poltergeist : BaseUnityPlugin
     {
         //Plugin info
