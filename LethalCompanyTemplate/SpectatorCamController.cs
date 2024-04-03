@@ -46,7 +46,7 @@ namespace Poltergeist
             lightObj.transform.eulerAngles = new Vector3 (90f, 0f, 0f);
             light.type = LightType.Directional;
             light.shadows = LightShadows.None;
-            light.intensity = PoltergeistConfig.Default.LightIntensity.Value;
+            light.intensity = Poltergeist.config.LightIntensity.Value;
 
             DisableCam();
         }
@@ -101,7 +101,7 @@ namespace Poltergeist
                 //Basics
                 enabled = false;
                 light.enabled = false;
-                Patches.vanillaMode = PoltergeistConfig.Default.DefaultToVanilla.Value;
+                Patches.vanillaMode = Poltergeist.config.DefaultToVanilla.Value;
                 altitudeLock = false;
 
                 //If these aren't null, we moved them and need to put them back

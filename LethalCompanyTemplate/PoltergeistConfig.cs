@@ -1,6 +1,6 @@
 ﻿using BepInEx.Configuration;
+using CSync.Extensions;
 using CSync.Lib;
-using CSync.Util;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -52,10 +52,10 @@ namespace Poltergeist
          */
         public PoltergeistConfig(ConfigFile cfg) : base(Poltergeist.MOD_GUID)
         {
+            Poltergeist.DebugLog("test0");
             ConfigManager.Register(this);
-            SyncComplete += AfterSync;
-            SyncReverted += AfterRevert;
 
+            Poltergeist.DebugLog("Test1");
             //Client things
             DefaultToVanilla = cfg.Bind("Client-Side",
                 "DefaultToVanilla",
@@ -66,118 +66,111 @@ namespace Poltergeist
                 5f,
                 "The intensity of the global light when dead.\n" +
                 "WARNING: This game has a lot of fog, so excessively high values can decrease visibility.");
+            Poltergeist.DebugLog("Test2");
 
             //Synced things
             MaxPowerConfig = cfg.BindSyncedEntry(
                 "Synced",
                 "MaxPower",
                 DEFAULT_MAXPOWER,
-                "The maximum power available to ghosts."
+                new ConfigDescription(
+                    "The maximum power available to ghosts.",
+                    new AcceptableValueRange<float>(0, float.MaxValue)
+                    )
                 );
             RechargeConfig = cfg.BindSyncedEntry(
                 "Synced",
                 "PowerRecharge",
                 DEFAULT_RECHARGE,
-                "How much power ghosts recharge every second."
+                new ConfigDescription(
+                    "How much power ghosts recharge every second.",
+                    new AcceptableValueRange<float>(0, float.MaxValue)
+                    )
                 );
             AliveForMaxConfig = cfg.BindSyncedEntry(
                 "Synced",
                 "AliveForMaxPower",
                 DEFAULT_ALIVEFORMAX,
-                "The maximum numbers that can be alive for ghosts to have max power.\n" + 
-                "(As soon as this many or fewer players are alive, all ghosts will be at max power.)"
+                new ConfigDescription(
+                    "The maximum numbers that can be alive for ghosts to have max power.\n" +
+                    "(As soon as this many or fewer players are alive, all ghosts will be at max power.)",
+                    new AcceptableValueRange<int>(0, int.MaxValue)
+                    )
                 );
+            Poltergeist.DebugLog("Test3");
 
             //Object costs
             DoorCostConfig = cfg.BindSyncedEntry(
                 "Synced: Costs",
                 "DoorCost",
                 DEFAULT_DOORCOST,
-                "How much power it costs to open and close doors."
+                new ConfigDescription(
+                    "How much power it costs to open and close doors.",
+                    new AcceptableValueRange<float>(0, float.MaxValue)
+                    )
                 );
             BigDoorCostConfig = cfg.BindSyncedEntry(
                 "Synced: Costs",
                 "BigDoorCost",
                 DEFAULT_BIGDOORCOST,
-                "How much power it costs to open and close pneumatic doors."
+                new ConfigDescription(
+                    "How much power it costs to open and close pneumatic doors.",
+                    new AcceptableValueRange<float>(0, float.MaxValue)
+                    )
                 );
             ItemCostConfig = cfg.BindSyncedEntry(
                 "Synced: Costs",
                 "ItemCost",
                 DEFAULT_ITEMCOST,
-                "How much power it costs to use noisy items on the ground."
+                new ConfigDescription(
+                    "How much power it costs to use noisy items on the ground.",
+                    new AcceptableValueRange<float>(0, float.MaxValue)
+                    )
                 );
             MiscCostConfig = cfg.BindSyncedEntry(
                 "Synced: Costs",
                 "MiscCost",
                 DEFAULT_MISCCOST,
-                "How much power it costs to use anything that doesn't fall under the other settings."
+                new ConfigDescription(
+                    "How much power it costs to use anything that doesn't fall under the other settings.",
+                    new AcceptableValueRange<float>(0, float.MaxValue)
+                    )
                 );
+            Poltergeist.DebugLog("Test4");
 
-            //Bound all of the settings (can't be negative)
+            //Bound light intensity
             LightIntensity.Value = MathF.Max(LightIntensity.Value, 0);
-            MaxPowerConfig.Value = MathF.Max(MaxPowerConfig.Value, 0);
-            RechargeConfig.Value = MathF.Max(RechargeConfig.Value, 0);
-            AliveForMaxConfig.Value = Math.Max(AliveForMaxConfig.Value, 0);
-            DoorCostConfig.Value = MathF.Max(DoorCostConfig.Value, 0);
-            BigDoorCostConfig.Value = MathF.Max(BigDoorCostConfig.Value, 0);
-            ItemCostConfig.Value = MathF.Max(ItemCostConfig.Value, 0);
-            MiscCostConfig.Value = MathF.Max(MiscCostConfig.Value, 0);
+            Poltergeist.DebugLog("Test5");
+
+            //Set up the events
+            //InitialSyncCompleted += AfterSync;
+            MaxPowerConfig.Changed += AfterSyncFloat;
+            RechargeConfig.Changed += AfterSyncFloat;
+            AliveForMaxConfig.Changed += AfterSyncInt;
+            DoorCostConfig.Changed += AfterSyncFloat;
+            BigDoorCostConfig.Changed += AfterSyncFloat;
+            ItemCostConfig.Changed += AfterSyncFloat;
+            MiscCostConfig.Changed += AfterSyncFloat;
+            //SyncReverted += AfterRevert;
+            Poltergeist.DebugLog("Test6");
 
             //Set the interface to use the instance values
             InstanceAsInterface();
 
             Poltergeist.DebugLog("Finished generating config");
+            Poltergeist.DebugLog("Test7");
         }
 
         /**
-         * After syncing, mark us as synced and re-overwrite the file
+         * After syncing, mark us as synced and update the interface
          */
-        private void AfterSync(object sender, EventArgs e)
+        private void AfterSyncFloat(object sender, SyncedSettingChangedEventArgs<float> e)
         {
-            Poltergeist.DebugLog("After Sync event is firing");
-            synced = true;
-
-            //Re-overwrite the file
-            float oldVal = Default.MaxPowerConfig.Value;
-            Default.MaxPowerConfig.Value = -999;
-            Default.MaxPowerConfig.Value = oldVal;
-
-            oldVal = Default.RechargeConfig.Value;
-            Default.RechargeConfig.Value = -999;
-            Default.RechargeConfig.Value = oldVal;
-
-            int oldValInt = Default.AliveForMaxConfig.Value;
-            Default.AliveForMaxConfig.Value = -999;
-            Default.AliveForMaxConfig.Value = oldValInt;
-
-            oldVal = Default.DoorCostConfig.Value;
-            Default.DoorCostConfig.Value = -999;
-            Default.DoorCostConfig.Value = oldVal;
-
-            oldVal = Default.BigDoorCostConfig.Value;
-            Default.BigDoorCostConfig.Value = -999;
-            Default.BigDoorCostConfig.Value = oldVal;
-
-            oldVal = Default.ItemCostConfig.Value;
-            Default.ItemCostConfig.Value = -999;
-            Default.ItemCostConfig.Value = oldVal;
-
-            oldVal = Default.MiscCostConfig.Value;
-            Default.MiscCostConfig.Value = -999;
-            Default.MiscCostConfig.Value = oldVal;
-
-            //Set the host's sent config to be what we use
-            InstanceAsInterface();
+            Poltergeist.DebugLog("After Sync event is firing for " + e.ChangedEntry.Entry.Definition.Key);
         }
-
-        /**
-         * After we revert, set the interface to the instance (which is now our settings)
-         */
-        private void AfterRevert(object  sender, EventArgs e)
+        private void AfterSyncInt(object sender, SyncedSettingChangedEventArgs<int> e)
         {
-            InstanceAsInterface();
-            synced = false;
+            Poltergeist.DebugLog("After Sync event is firing for " + e.ChangedEntry.Entry.Definition.Key);
         }
 
         /**
@@ -186,19 +179,19 @@ namespace Poltergeist
         private static void InstanceAsInterface()
         {
             //If something with the instance is wrong, force the defaults instead
-            if(Instance.MaxPowerConfig == null)
+            /*if(Poltergeist.config.MaxPowerConfig == null)
             {
                 ForceDefaults();
                 return;
-            }
+            }*/
 
-            MaxPower = Instance.MaxPowerConfig.Value;
-            Recharge = Instance.RechargeConfig.Value;
-            AliveForMax = Instance.AliveForMaxConfig.Value;
-            DoorCost = Instance.DoorCostConfig.Value;
-            BigDoorCost = Instance.BigDoorCostConfig.Value;
-            ItemCost = Instance.ItemCostConfig.Value;
-            MiscCost = Instance.MiscCostConfig.Value;
+            MaxPower = Poltergeist.config.MaxPowerConfig.Value;
+            Recharge = Poltergeist.config.RechargeConfig.Value;
+            AliveForMax = Poltergeist.config.AliveForMaxConfig.Value;
+            DoorCost = Poltergeist.config.DoorCostConfig.Value;
+            BigDoorCost = Poltergeist.config.BigDoorCostConfig.Value;
+            ItemCost = Poltergeist.config.ItemCostConfig.Value;
+            MiscCost = Poltergeist.config.MiscCostConfig.Value;
         }
 
         /**
@@ -222,7 +215,7 @@ namespace Poltergeist
         {
             Poltergeist.DebugLog("Checking for sync");
 
-            if (!synced && !IsHost)
+            if (!synced) //CHECK FOR HOST
                 ForceDefaults();
 
             synced = true;
