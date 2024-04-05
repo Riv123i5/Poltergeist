@@ -21,7 +21,7 @@ namespace Poltergeist
 
         //Fundamental info on the interaction
         private GhostInteractType type = GhostInteractType.UNKNOWN;
-        public float cost = 10f;
+        public float cost = 0f;
 
         //Useful for the global list of items
         private static List<GhostInteractible> managedInteractibles = new List<GhostInteractible>();
@@ -114,10 +114,7 @@ namespace Poltergeist
         {
             float retCost = 0;
 
-            //Don't let them interact without meeting the cost
-            if(SpectatorCamController.instance.Power < cost)
-                return retCost;
-
+            
             switch (type)
             {
                 //It's some generic interactible
@@ -125,7 +122,7 @@ namespace Poltergeist
                     if (trigger.interactable)
                     {
                         trigger.Interact(playerTransform);
-                        retCost = cost;
+                        retCost = 0;
                     }
                     break;
 
@@ -133,7 +130,7 @@ namespace Poltergeist
                 case GhostInteractType.NOISE_PROP:
                 case GhostInteractType.BOOMBOX:
                     MakeNoise();
-                    retCost = cost;
+                    retCost = 0;
                     break;
 
                 //It's a big door
@@ -143,7 +140,7 @@ namespace Poltergeist
                     if(powered)
                     {
                         bigDoorObj.SetDoorToggleLocalClient();
-                        retCost = cost;
+                        retCost = 0;
                     }
                     break;
             }
